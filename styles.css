@@ -318,6 +318,14 @@ h2 {
   margin-bottom: 12px;
 }
 
+.congrats {
+  margin: 0 0 10px;
+  color: var(--accent-strong);
+  font-size: clamp(1.45rem, 5vw, 2.6rem);
+  font-weight: 950;
+  line-height: 1;
+}
+
 #finalText {
   max-width: 690px;
   color: var(--muted);
