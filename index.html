@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dil Dedektifi</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="game-panel" aria-labelledby="game-title">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Zor mod: kulak dedektifi</p>
+            <h1 id="game-title">Dil Dedektifi</h1>
+          </div>
+          <div class="scoreboard" aria-label="Skor">
+            <span id="roundLabel">Tur 1/8</span>
+            <strong id="scoreLabel">0 puan</strong>
+          </div>
+        </div>
+
+        <div class="stage">
+          <canvas id="waveCanvas" width="900" height="260" aria-hidden="true"></canvas>
+          <div class="sticker sticker-left" aria-hidden="true">?</div>
+          <div class="sticker sticker-right" aria-hidden="true">!</div>
+          <div class="audio-card">
+            <span id="challengeLabel" class="challenge-label">Zor seviye</span>
+            <p id="promptText">Bu cümle hangi dilde?</p>
+            <button id="listenButton" class="primary-button" type="button">
+              <span class="button-icon" aria-hidden="true">▶</span>
+              Dinle
+            </button>
+            <p id="voiceNotice" class="notice" role="status"></p>
+          </div>
+        </div>
+
+        <div id="choices" class="choices" aria-label="Dil seçenekleri"></div>
+
+        <section id="resultPanel" class="result-panel" aria-live="polite" hidden>
+          <div>
+            <p id="resultTitle" class="result-title"></p>
+            <p id="resultMeta" class="result-meta"></p>
+            <p id="resultFact" class="result-fact"></p>
+          </div>
+          <button id="nextButton" class="secondary-button" type="button">Sonraki tur</button>
+        </section>
+
+        <section id="finalPanel" class="final-panel" hidden>
+          <p class="eyebrow">Oyun bitti</p>
+          <h2 id="finalTitle"></h2>
+          <p id="finalText"></p>
+          <button id="restartButton" class="primary-button" type="button">Yeniden oyna</button>
+        </section>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
