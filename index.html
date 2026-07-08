@@ -11,47 +11,92 @@
       <section class="game-panel" aria-labelledby="game-title">
         <div class="topbar">
           <div>
-            <p class="eyebrow">Zor mod: kulak dedektifi</p>
+            <p id="modeEyebrow" class="eyebrow">Mini dil oyunları</p>
             <h1 id="game-title">Dil Dedektifi</h1>
           </div>
+          <div class="mascot" aria-hidden="true">
+            <span class="mascot-flower">✿</span>
+            <span class="hedgehog">🦔</span>
+          </div>
           <div class="scoreboard" aria-label="Skor">
-            <span id="roundLabel">Tur 1/8</span>
+            <span id="roundLabel">Mod seç</span>
             <strong id="scoreLabel">0 puan</strong>
           </div>
         </div>
 
-        <div class="stage">
-          <canvas id="waveCanvas" width="900" height="260" aria-hidden="true"></canvas>
-          <div class="sticker sticker-left" aria-hidden="true">?</div>
-          <div class="sticker sticker-right" aria-hidden="true">!</div>
-          <div class="audio-card">
-            <span id="challengeLabel" class="challenge-label">Zor seviye</span>
-            <p id="promptText">Bu cümle hangi dilde?</p>
-            <button id="listenButton" class="primary-button" type="button">
-              <span class="button-icon" aria-hidden="true">▶</span>
-              Dinle
-            </button>
-            <p id="voiceNotice" class="notice" role="status"></p>
+        <section id="modeMenu" class="mode-menu" aria-label="Oyun modları">
+          <div class="flower-field" aria-hidden="true">
+            <span>✿</span>
+            <span>❀</span>
+            <span>✽</span>
+            <span>✿</span>
+            <span>❁</span>
           </div>
-        </div>
-
-        <div id="choices" class="choices" aria-label="Dil seçenekleri"></div>
-
-        <section id="resultPanel" class="result-panel" aria-live="polite" hidden>
-          <div>
-            <p id="resultTitle" class="result-title"></p>
-            <p id="resultMeta" class="result-meta"></p>
-            <p id="resultFact" class="result-fact"></p>
-          </div>
-          <button id="nextButton" class="secondary-button" type="button">Sonraki tur</button>
+          <button class="mode-card" type="button" data-mode="orthography">
+            <span class="mode-icon" aria-hidden="true">Aa</span>
+            <strong>Alfabe Avcısı</strong>
+            <span>Yazıdan, harften, ortografiden dili tanı.</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="listening">
+            <span class="mode-icon" aria-hidden="true">▶</span>
+            <strong>Kulak Dedektifi</strong>
+            <span>Cümleyi dinle, ritim ve seslerden dili bul.</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="trivia">
+            <span class="mode-icon" aria-hidden="true">?</span>
+            <strong>Trivia Turu</strong>
+            <span>Az ipucuyla bil, ekstra ipucu alırsan puan düşer.</span>
+          </button>
         </section>
 
-        <section id="finalPanel" class="final-panel" hidden>
-          <p class="eyebrow">Oyun bitti</p>
-          <p class="congrats">Tebrikler Dilara</p>
-          <h2 id="finalTitle"></h2>
-          <p id="finalText"></p>
-          <button id="restartButton" class="primary-button" type="button">Yeniden oyna</button>
+        <section id="playArea" hidden>
+          <div class="stage">
+            <canvas id="waveCanvas" width="900" height="260" aria-hidden="true"></canvas>
+            <div class="sticker sticker-left" aria-hidden="true">✿</div>
+            <div class="sticker sticker-right" aria-hidden="true">🦔</div>
+            <div class="mini-garden" aria-hidden="true">
+              <span>❀</span>
+              <span>✿</span>
+              <span>✽</span>
+            </div>
+            <div class="audio-card">
+              <span id="challengeLabel" class="challenge-label">Zor seviye</span>
+              <p id="promptText">Bu cümle hangi dilde?</p>
+              <p id="sampleText" class="sample-text" hidden></p>
+              <div id="hintList" class="hint-list" hidden></div>
+              <div class="action-row">
+                <button id="listenButton" class="primary-button" type="button">
+                  <span class="button-icon" aria-hidden="true">▶</span>
+                  Dinle
+                </button>
+                <button id="hintButton" class="secondary-button" type="button" hidden>
+                  Ek ipucu al
+                </button>
+              </div>
+              <p id="voiceNotice" class="notice" role="status"></p>
+            </div>
+          </div>
+
+          <div id="choices" class="choices" aria-label="Dil seçenekleri"></div>
+
+          <section id="resultPanel" class="result-panel" aria-live="polite" hidden>
+            <div>
+              <p id="resultTitle" class="result-title"></p>
+              <p id="resultMeta" class="result-meta"></p>
+              <p id="resultFact" class="result-fact"></p>
+            </div>
+            <button id="nextButton" class="secondary-button" type="button">Sonraki tur</button>
+          </section>
+
+          <section id="finalPanel" class="final-panel" hidden>
+            <p class="eyebrow">Oyun bitti</p>
+            <h2 id="finalTitle"></h2>
+            <p id="finalText"></p>
+            <div class="final-actions">
+              <button id="restartButton" class="primary-button" type="button">Aynı modu yeniden oyna</button>
+              <button id="menuButton" class="secondary-button" type="button">Modlara dön</button>
+            </div>
+          </section>
         </section>
       </section>
     </main>

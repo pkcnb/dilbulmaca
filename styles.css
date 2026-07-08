@@ -1,19 +1,20 @@
 :root {
   color-scheme: light;
-  --bg: #211a27;
-  --panel: #fff8f0;
-  --panel-strong: #ffe7b7;
-  --ink: #2b2331;
-  --muted: #76677e;
-  --line: #ead5bd;
-  --accent: #ff8fb3;
-  --accent-strong: #ec5f95;
-  --mint: #83d8c2;
-  --blue: #8db7ff;
-  --gold: #ffd166;
-  --wrong: #ff7878;
-  --right: #63c995;
-  --shadow: 0 24px 70px rgba(68, 39, 69, 0.26);
+  --bg: #342538;
+  --panel: #fffaf3;
+  --panel-strong: #ffe9b8;
+  --ink: #3a273d;
+  --muted: #826d85;
+  --line: #efcfe0;
+  --accent: #ff9fc4;
+  --accent-strong: #e85091;
+  --mint: #9ee6c8;
+  --leaf: #79c99a;
+  --blue: #9fc6ff;
+  --gold: #ffd978;
+  --wrong: #ff7f8c;
+  --right: #6dcc9b;
+  --shadow: 0 24px 70px rgba(91, 50, 93, 0.24);
 }
 
 * {
@@ -27,9 +28,9 @@ body {
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   background:
-    linear-gradient(135deg, rgba(255, 143, 179, 0.18) 25%, transparent 25%) 0 0 / 28px 28px,
-    linear-gradient(225deg, rgba(141, 183, 255, 0.18) 25%, transparent 25%) 0 0 / 28px 28px,
-    linear-gradient(140deg, #fff3c9, #ffe5ec 42%, #dff7ef);
+    radial-gradient(circle at 12px 12px, rgba(232, 80, 145, 0.2) 0 3px, transparent 4px) 0 0 / 38px 38px,
+    radial-gradient(circle at 30px 28px, rgba(121, 201, 154, 0.22) 0 4px, transparent 5px) 0 0 / 52px 52px,
+    linear-gradient(140deg, #fff4c9, #ffe1ef 43%, #dcf8e9);
   color: var(--ink);
 }
 
@@ -53,11 +54,31 @@ button:disabled {
 
 .game-panel {
   width: min(980px, 100%);
-  background: rgba(255, 248, 240, 0.96);
-  border: 2px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 250, 243, 0.97);
+  border: 3px solid rgba(255, 255, 255, 0.82);
   border-radius: 8px;
   box-shadow: var(--shadow);
   overflow: hidden;
+  position: relative;
+}
+
+.game-panel::before,
+.game-panel::after {
+  content: "✿ ❀ ✿";
+  position: absolute;
+  color: rgba(232, 80, 145, 0.22);
+  font-size: 1.4rem;
+  pointer-events: none;
+}
+
+.game-panel::before {
+  left: 22px;
+  bottom: 14px;
+}
+
+.game-panel::after {
+  right: 22px;
+  top: 14px;
 }
 
 .topbar {
@@ -66,6 +87,8 @@ button:disabled {
   gap: 20px;
   align-items: flex-start;
   padding: 28px 30px 22px;
+  position: relative;
+  z-index: 1;
 }
 
 .eyebrow {
@@ -86,6 +109,8 @@ h2 {
 
 h1 {
   font-size: clamp(2.2rem, 7vw, 5.1rem);
+  color: #4b2d51;
+  text-shadow: 0 4px 0 rgba(255, 159, 196, 0.18);
 }
 
 h2 {
@@ -101,6 +126,36 @@ h2 {
   border-radius: 8px;
   background: var(--panel-strong);
   text-align: right;
+  box-shadow: 0 8px 0 rgba(255, 159, 196, 0.16);
+}
+
+.mascot {
+  align-self: center;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 74px;
+  border: 3px solid #fff;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 239, 247, 0.86)),
+    radial-gradient(circle at 50% 100%, rgba(121, 201, 154, 0.26), transparent 56%);
+  box-shadow: 0 12px 24px rgba(91, 50, 93, 0.13);
+}
+
+.hedgehog {
+  font-size: 2.75rem;
+  line-height: 1;
+  transform: translateY(5px);
+}
+
+.mascot-flower {
+  position: absolute;
+  top: 7px;
+  right: 12px;
+  color: var(--accent-strong);
+  font-size: 1.25rem;
 }
 
 .scoreboard span {
@@ -112,14 +167,112 @@ h2 {
   font-size: 1.15rem;
 }
 
+.mode-menu {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px 30px 34px;
+}
+
+.flower-field {
+  position: absolute;
+  inset: 0 24px auto;
+  height: 44px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  color: var(--accent-strong);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.flower-field span {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 8px 18px rgba(91, 50, 93, 0.1);
+}
+
+.flower-field span:nth-child(even) {
+  color: var(--leaf);
+  transform: translateY(8px) rotate(10deg);
+}
+
+.flower-field span:nth-child(3) {
+  color: var(--gold);
+  transform: translateY(-2px) rotate(-8deg);
+}
+
+.mode-card {
+  min-height: 210px;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--ink);
+  text-align: left;
+  box-shadow: 0 14px 28px rgba(68, 39, 69, 0.08);
+  position: relative;
+  z-index: 1;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.mode-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 18px 34px rgba(68, 39, 69, 0.13);
+}
+
+.mode-card::after {
+  content: "✿";
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  color: rgba(232, 80, 145, 0.24);
+  font-size: 1.9rem;
+}
+
+.mode-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffe7f0, #fff3c9);
+  color: #9b2f63;
+  font-weight: 950;
+  font-size: 1.25rem;
+}
+
+.mode-card strong {
+  font-size: 1.25rem;
+}
+
+.mode-card span:last-child {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .stage {
   position: relative;
   min-height: 310px;
   display: grid;
   place-items: center;
-  border-block: 2px dashed rgba(255, 143, 179, 0.35);
+  border-block: 3px dashed rgba(255, 159, 196, 0.48);
   background:
     linear-gradient(rgba(255, 248, 240, 0.24), rgba(255, 248, 240, 0.82)),
+    radial-gradient(circle at 15% 82%, rgba(121, 201, 154, 0.2), transparent 22%),
+    radial-gradient(circle at 82% 24%, rgba(255, 217, 120, 0.22), transparent 20%),
     repeating-linear-gradient(
       90deg,
       rgba(43, 35, 49, 0.055) 0 1px,
@@ -136,7 +289,7 @@ h2 {
 
 .audio-card {
   position: relative;
-  width: min(430px, calc(100% - 36px));
+  width: min(560px, calc(100% - 36px));
   display: grid;
   justify-items: center;
   gap: 16px;
@@ -145,6 +298,9 @@ h2 {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(12px);
+  box-shadow:
+    0 14px 34px rgba(91, 50, 93, 0.12),
+    inset 0 0 0 2px rgba(255, 232, 244, 0.8);
 }
 
 .challenge-label {
@@ -165,7 +321,7 @@ h2 {
   place-items: center;
   width: 54px;
   height: 54px;
-  border: 2px solid #fff;
+  border: 3px solid #fff;
   border-radius: 8px;
   color: #2b2331;
   font-size: 2rem;
@@ -177,14 +333,34 @@ h2 {
 .sticker-left {
   left: 42px;
   top: 38px;
-  background: var(--gold);
+  background: #ffe7f0;
+  color: var(--accent-strong);
 }
 
 .sticker-right {
   right: 52px;
   bottom: 42px;
-  background: var(--mint);
+  background: #fff3c9;
   transform: rotate(12deg);
+}
+
+.mini-garden {
+  position: absolute;
+  left: 58px;
+  bottom: 24px;
+  display: flex;
+  gap: 10px;
+  color: var(--leaf);
+  font-size: 1.35rem;
+}
+
+.mini-garden span:nth-child(2) {
+  color: var(--accent-strong);
+  transform: translateY(-7px);
+}
+
+.mini-garden span:nth-child(3) {
+  color: var(--gold);
 }
 
 #promptText {
@@ -192,6 +368,47 @@ h2 {
   color: var(--muted);
   font-size: 1rem;
   text-align: center;
+}
+
+.sample-text {
+  width: 100%;
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 18px;
+  border: 2px dashed rgba(255, 159, 196, 0.48);
+  border-radius: 8px;
+  background: #fff8f0;
+  color: var(--ink);
+  font-size: clamp(1.5rem, 5vw, 2.65rem);
+  font-weight: 850;
+  line-height: 1.22;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.hint-list {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.hint-list p {
+  margin: 0;
+  padding: 12px 14px;
+  border: 2px solid rgba(234, 213, 189, 0.9);
+  border-radius: 8px;
+  background: #fff8f0;
+  color: var(--ink);
+  line-height: 1.42;
+}
+
+.action-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .primary-button,
@@ -214,6 +431,12 @@ h2 {
   background: var(--accent);
   color: #321425;
   font-weight: 850;
+}
+
+.primary-button[hidden],
+.secondary-button[hidden],
+[hidden] {
+  display: none !important;
 }
 
 .primary-button:hover:not(:disabled),
@@ -253,6 +476,7 @@ h2 {
   background: #fffdf8;
   color: var(--ink);
   font-weight: 760;
+  box-shadow: 0 7px 0 rgba(239, 207, 224, 0.8);
 }
 
 .choice-button.correct {
@@ -318,14 +542,6 @@ h2 {
   margin-bottom: 12px;
 }
 
-.congrats {
-  margin: 0 0 10px;
-  color: var(--accent-strong);
-  font-size: clamp(1.45rem, 5vw, 2.6rem);
-  font-weight: 950;
-  line-height: 1;
-}
-
 #finalText {
   max-width: 690px;
   color: var(--muted);
@@ -334,6 +550,18 @@ h2 {
 
 .final-panel .primary-button {
   margin-top: 20px;
+}
+
+.final-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.final-actions .primary-button,
+.final-actions .secondary-button {
+  margin-top: 0;
 }
 
 @media (max-width: 760px) {
@@ -346,9 +574,30 @@ h2 {
     flex-direction: column;
   }
 
+  .mascot {
+    position: absolute;
+    right: 18px;
+    top: 22px;
+    width: 70px;
+    height: 58px;
+  }
+
+  .hedgehog {
+    font-size: 2.1rem;
+  }
+
   .scoreboard {
     width: 100%;
     text-align: left;
+  }
+
+  .mode-menu {
+    grid-template-columns: 1fr;
+    padding: 0 18px 22px;
+  }
+
+  .mode-card {
+    min-height: 0;
   }
 
   .stage {
@@ -356,6 +605,10 @@ h2 {
   }
 
   .sticker {
+    display: none;
+  }
+
+  .mini-garden {
     display: none;
   }
 
@@ -383,6 +636,10 @@ h2 {
   .primary-button,
   .secondary-button,
   .choice-button {
+    width: 100%;
+  }
+
+  .action-row {
     width: 100%;
   }
 }
