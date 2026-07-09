@@ -328,6 +328,45 @@ const modes = {
   },
 };
 
+const storageKey = "dilDedektifiKirpiState";
+const starterLeaves = 1000000;
+const hedgehogSpeakingFrames = Array.from(
+  { length: 8 },
+  (_, index) => `assets/hedgehog-speaking/speaking-${index + 1}.png?v=no-sparkle-1`,
+);
+const hedgehogOrthographyFrames = Array.from(
+  { length: 10 },
+  (_, index) => `assets/hedgehog-orthography/orthography-${index + 1}.png?v=orthography-1`,
+);
+const hedgehogTriviaFrames = Array.from(
+  { length: 8 },
+  (_, index) => `assets/hedgehog-trivia/trivia-${index + 1}.png?v=trivia-1`,
+);
+const hedgehogGestureFrame = "assets/hedgehog-frames/hedgehog-2.png?v=no-sparkle-1";
+const hedgehogBlinkFrame = "assets/hedgehog-frames/hedgehog-blink.png?v=no-sparkle-1";
+const hedgehogIdleFrames = [
+  "assets/hedgehog-frames/hedgehog-5.png?v=no-sparkle-1",
+  "assets/hedgehog-frames/hedgehog-idle-1.png?v=no-sparkle-1",
+  "assets/hedgehog-frames/hedgehog-5.png?v=no-sparkle-1",
+  "assets/hedgehog-frames/hedgehog-idle-2.png?v=no-sparkle-1",
+];
+const hedgehogTalkFrames = [7, 3, 4, 2, 5, 0, 6, 1];
+const hedgehogOrthographyScanFrames = [9, 8, 7, 0, 1, 2, 5, 6, 0];
+const hedgehogTriviaThinkFrames = [0, 1, 2, 5, 4, 6, 7, 0];
+const shopItemsData = [
+  { id: "flower_a", name: "Çiçek tacı A", slot: "head", price: 20 },
+  { id: "flower_b", name: "Çiçek tacı B", slot: "head", price: 25 },
+  { id: "detective_hat", name: "Dedektif şapkası", slot: "head", price: 35 },
+  { id: "glasses_a", name: "Gözlük A", slot: "face", price: 15 },
+  { id: "glasses_b", name: "Gözlük B", slot: "face", price: 25 },
+  { id: "scarf_a", name: "Atkı A", slot: "neck", price: 20 },
+  { id: "scarf_b", name: "Atkı B", slot: "neck", price: 20 },
+  { id: "headphones_a", name: "Kulaklık A", slot: "ears", price: 35 },
+  { id: "headphones_b", name: "Kulaklık B", slot: "ears", price: 40 },
+  { id: "magnifier", name: "Büyüteç", slot: "hand", price: 25 },
+  { id: "pencil", name: "Kalem", slot: "hand", price: 15 },
+];
+
 const totalRounds = 10;
 let voices = [];
 let deck = [];
@@ -338,16 +377,37 @@ let score = 0;
 let hasAnswered = false;
 let isSpeaking = false;
 let revealedHints = 1;
+let playerState = loadPlayerState();
+let lastReward = 0;
+let hedgehogAnimationTimer = null;
+let hedgehogFrameStep = 0;
+let hedgehogBlinkTimer = null;
+let hedgehogGestureTimer = null;
+let hedgehogIdleTimer = null;
+let hedgehogIdleStep = 0;
+let hedgehogOrthographyTimer = null;
+let hedgehogOrthographyFrameTimer = null;
+let hedgehogTriviaTimer = null;
+let hedgehogTriviaFrameTimer = null;
+let hedgehogPassiveMode = "";
 
 const modeEyebrow = document.querySelector("#modeEyebrow");
 const modeMenu = document.querySelector("#modeMenu");
 const playArea = document.querySelector("#playArea");
+const shopPanel = document.querySelector("#shopPanel");
+const backButton = document.querySelector("#backButton");
 const roundLabel = document.querySelector("#roundLabel");
 const scoreLabel = document.querySelector("#scoreLabel");
+const leafLabel = document.querySelector("#leafLabel");
+const shopLeafLabel = document.querySelector("#shopLeafLabel");
+const dressButton = document.querySelector("#dressButton");
+const shopItems = document.querySelector("#shopItems");
+const shopBackButton = document.querySelector("#shopBackButton");
 const listenButton = document.querySelector("#listenButton");
 const hintButton = document.querySelector("#hintButton");
 const challengeLabel = document.querySelector("#challengeLabel");
 const promptText = document.querySelector("#promptText");
+const stageCharacter = document.querySelector("#stageCharacter");
 const sampleText = document.querySelector("#sampleText");
 const hintList = document.querySelector("#hintList");
 const choices = document.querySelector("#choices");
@@ -359,12 +419,292 @@ const nextButton = document.querySelector("#nextButton");
 const finalPanel = document.querySelector("#finalPanel");
 const finalTitle = document.querySelector("#finalTitle");
 const finalText = document.querySelector("#finalText");
+const rewardText = document.querySelector("#rewardText");
 const restartButton = document.querySelector("#restartButton");
 const menuButton = document.querySelector("#menuButton");
 const voiceNotice = document.querySelector("#voiceNotice");
 const canvas = document.querySelector("#waveCanvas");
 const ctx = canvas.getContext("2d");
 const synth = window.speechSynthesis || null;
+
+function loadPlayerState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey));
+    if (saved && typeof saved.leaves === "number") {
+      const normalized = {
+        leaves: Math.max(saved.leaves, starterLeaves),
+        owned: Array.isArray(saved.owned) ? saved.owned : [],
+        equipped: saved.equipped && typeof saved.equipped === "object" ? saved.equipped : {},
+      };
+      localStorage.setItem(storageKey, JSON.stringify(normalized));
+      return normalized;
+    }
+  } catch {
+    // Ignore broken saves and start fresh.
+  }
+  return { leaves: starterLeaves, owned: [], equipped: {} };
+}
+
+function savePlayerState() {
+  localStorage.setItem(storageKey, JSON.stringify(playerState));
+}
+
+function updateLeafLabels() {
+  leafLabel.textContent = `${playerState.leaves} yaprak`;
+  shopLeafLabel.textContent = `${playerState.leaves} yaprak`;
+}
+
+function applyEquippedItems() {
+  const wearClasses = shopItemsData.map((item) => `wear-${item.id}`);
+  document.querySelectorAll(".character-hedgehog").forEach((character) => {
+    character.classList.remove(...wearClasses);
+    Object.values(playerState.equipped).forEach((itemId) => {
+      if (itemId) character.classList.add(`wear-${itemId}`);
+    });
+  });
+}
+
+function setHedgehogImage(frame) {
+  document.querySelectorAll(".hedgehog-img").forEach((image) => {
+    image.src = frame;
+  });
+}
+
+function startHedgehogAnimation(mode = "menu") {
+  if (mode === "speaking") {
+    startHedgehogTalking();
+    return;
+  }
+
+  if (hedgehogPassiveMode !== mode) {
+    clearHedgehogPassiveTimers();
+    hedgehogPassiveMode = mode;
+  }
+
+  stopHedgehogTalking();
+  startHedgehogIdle();
+  scheduleHedgehogBlink();
+  if (mode === "orthography") scheduleHedgehogOrthographyScan();
+  else if (mode === "trivia") scheduleHedgehogTriviaThink();
+  else scheduleHedgehogGesture();
+}
+
+function startHedgehogTalking() {
+  clearHedgehogPassiveTimers();
+  hedgehogPassiveMode = "speaking";
+  if (hedgehogAnimationTimer) return;
+
+  hedgehogFrameStep = 0;
+  setHedgehogImage(hedgehogSpeakingFrames[hedgehogTalkFrames[0]]);
+  hedgehogAnimationTimer = window.setInterval(() => {
+    hedgehogFrameStep = (hedgehogFrameStep + 1) % hedgehogTalkFrames.length;
+    setHedgehogImage(hedgehogSpeakingFrames[hedgehogTalkFrames[hedgehogFrameStep]]);
+  }, 135);
+}
+
+function stopHedgehogTalking() {
+  if (!hedgehogAnimationTimer) return;
+  window.clearInterval(hedgehogAnimationTimer);
+  hedgehogAnimationTimer = null;
+  hedgehogFrameStep = 0;
+}
+
+function stopHedgehogAnimation() {
+  stopHedgehogTalking();
+  clearHedgehogPassiveTimers();
+  hedgehogPassiveMode = "";
+}
+
+function clearHedgehogPassiveTimers() {
+  window.clearTimeout(hedgehogBlinkTimer);
+  window.clearTimeout(hedgehogGestureTimer);
+  window.clearTimeout(hedgehogOrthographyTimer);
+  window.clearTimeout(hedgehogOrthographyFrameTimer);
+  window.clearTimeout(hedgehogTriviaTimer);
+  window.clearTimeout(hedgehogTriviaFrameTimer);
+  window.clearInterval(hedgehogIdleTimer);
+  hedgehogBlinkTimer = null;
+  hedgehogGestureTimer = null;
+  hedgehogOrthographyTimer = null;
+  hedgehogOrthographyFrameTimer = null;
+  hedgehogTriviaTimer = null;
+  hedgehogTriviaFrameTimer = null;
+  hedgehogIdleTimer = null;
+}
+
+function startHedgehogIdle() {
+  if (hedgehogIdleTimer) return;
+
+  hedgehogIdleStep = 0;
+  setHedgehogImage(hedgehogIdleFrames[hedgehogIdleStep]);
+  hedgehogIdleTimer = window.setInterval(() => {
+    if (isSpeaking) return;
+    hedgehogIdleStep = (hedgehogIdleStep + 1) % hedgehogIdleFrames.length;
+    setHedgehogImage(hedgehogIdleFrames[hedgehogIdleStep]);
+  }, 850);
+}
+
+function scheduleHedgehogBlink() {
+  if (hedgehogBlinkTimer) return;
+
+  const delay = 5000 + Math.random() * 2000;
+  hedgehogBlinkTimer = window.setTimeout(() => {
+    hedgehogBlinkTimer = null;
+    if (!isSpeaking && !hedgehogOrthographyFrameTimer && !hedgehogTriviaFrameTimer) {
+      setHedgehogImage(hedgehogBlinkFrame);
+      window.setTimeout(() => {
+        if (!isSpeaking) setHedgehogImage(hedgehogIdleFrames[hedgehogIdleStep]);
+      }, 180);
+    }
+    scheduleHedgehogBlink();
+  }, delay);
+}
+
+function scheduleHedgehogGesture() {
+  if (hedgehogGestureTimer) return;
+
+  const delay = 18000 + Math.random() * 18000;
+  hedgehogGestureTimer = window.setTimeout(() => {
+    hedgehogGestureTimer = null;
+    if (!isSpeaking && Math.random() > 0.35) {
+      setHedgehogImage(hedgehogGestureFrame);
+      window.setTimeout(() => {
+        if (!isSpeaking) setHedgehogImage(hedgehogIdleFrames[hedgehogIdleStep]);
+      }, 900);
+    }
+    scheduleHedgehogGesture();
+  }, delay);
+}
+
+function scheduleHedgehogOrthographyScan() {
+  if (hedgehogOrthographyTimer) return;
+
+  const delay = 5200 + Math.random() * 2600;
+  hedgehogOrthographyTimer = window.setTimeout(() => {
+    hedgehogOrthographyTimer = null;
+    playHedgehogOrthographyScan();
+    scheduleHedgehogOrthographyScan();
+  }, delay);
+}
+
+function playHedgehogOrthographyScan() {
+  if (isSpeaking || currentMode !== "orthography" || hedgehogOrthographyFrameTimer) return;
+
+  window.clearInterval(hedgehogIdleTimer);
+  hedgehogIdleTimer = null;
+  let frameStep = 0;
+  const showNextFrame = () => {
+    setHedgehogImage(hedgehogOrthographyFrames[hedgehogOrthographyScanFrames[frameStep]]);
+    frameStep += 1;
+    if (frameStep >= hedgehogOrthographyScanFrames.length) {
+      hedgehogOrthographyFrameTimer = null;
+      hedgehogIdleStep = 0;
+      window.setTimeout(() => {
+        if (currentMode === "orthography" && !isSpeaking) {
+          setHedgehogImage(hedgehogIdleFrames[hedgehogIdleStep]);
+          startHedgehogIdle();
+        }
+      }, 70);
+      return;
+    }
+    const delay = frameStep >= hedgehogOrthographyScanFrames.length - 2 ? 85 : 160;
+    hedgehogOrthographyFrameTimer = window.setTimeout(showNextFrame, delay);
+  };
+  showNextFrame();
+}
+
+function scheduleHedgehogTriviaThink() {
+  if (hedgehogTriviaTimer) return;
+
+  const delay = 4800 + Math.random() * 2600;
+  hedgehogTriviaTimer = window.setTimeout(() => {
+    hedgehogTriviaTimer = null;
+    playHedgehogTriviaThink();
+    scheduleHedgehogTriviaThink();
+  }, delay);
+}
+
+function playHedgehogTriviaThink() {
+  if (isSpeaking || currentMode !== "trivia" || hedgehogTriviaFrameTimer) return;
+
+  window.clearInterval(hedgehogIdleTimer);
+  hedgehogIdleTimer = null;
+  let frameStep = 0;
+  const showNextFrame = () => {
+    setHedgehogImage(hedgehogTriviaFrames[hedgehogTriviaThinkFrames[frameStep]]);
+    frameStep += 1;
+    if (frameStep >= hedgehogTriviaThinkFrames.length) {
+      hedgehogTriviaFrameTimer = null;
+      hedgehogIdleStep = 0;
+      window.setTimeout(() => {
+        if (currentMode === "trivia" && !isSpeaking) {
+          setHedgehogImage(hedgehogIdleFrames[hedgehogIdleStep]);
+          startHedgehogIdle();
+        }
+      }, 80);
+      return;
+    }
+    hedgehogTriviaFrameTimer = window.setTimeout(showNextFrame, 150);
+  };
+  showNextFrame();
+}
+
+function renderShop() {
+  updateLeafLabels();
+  applyEquippedItems();
+  shopItems.innerHTML = "";
+
+  shopItemsData.forEach((item) => {
+    const owned = playerState.owned.includes(item.id);
+    const equipped = playerState.equipped[item.slot] === item.id;
+    const card = document.createElement("article");
+    card.className = "shop-item";
+
+    const title = document.createElement("strong");
+    title.textContent = item.name;
+    const meta = document.createElement("span");
+    meta.textContent = owned ? slotLabel(item.slot) : `${item.price} yaprak · ${slotLabel(item.slot)}`;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = owned ? "" : "primary-shop";
+    button.textContent = owned ? (equipped ? "Çıkar" : "Tak") : "Satın al";
+    button.disabled = !owned && playerState.leaves < item.price;
+    button.addEventListener("click", () => handleShopItem(item));
+
+    card.append(title, meta, button);
+    shopItems.append(card);
+  });
+}
+
+function slotLabel(slot) {
+  const labels = {
+    head: "Baş",
+    face: "Yüz",
+    neck: "Boyun",
+    ears: "Kulak",
+    hand: "El",
+  };
+  return labels[slot] || slot;
+}
+
+function handleShopItem(item) {
+  const owned = playerState.owned.includes(item.id);
+  const equipped = playerState.equipped[item.slot] === item.id;
+
+  if (!owned) {
+    if (playerState.leaves < item.price) return;
+    playerState.leaves -= item.price;
+    playerState.owned.push(item.id);
+    playerState.equipped[item.slot] = item.id;
+  } else if (equipped) {
+    delete playerState.equipped[item.slot];
+  } else {
+    playerState.equipped[item.slot] = item.id;
+  }
+
+  savePlayerState();
+  renderShop();
+}
 
 function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
@@ -390,12 +730,16 @@ function createDeck(mode) {
 
 function startGame(mode = currentMode || "listening") {
   if (synth) synth.cancel();
+  document.body.classList.remove("is-menu-view", "is-shop-view");
+  document.body.classList.add("is-game-view");
   currentMode = mode;
   deck = createDeck(mode);
   currentRound = 0;
   score = 0;
   modeMenu.hidden = true;
+  shopPanel.hidden = true;
   playArea.hidden = false;
+  backButton.hidden = false;
   finalPanel.hidden = true;
   resultPanel.hidden = true;
   nextButton.textContent = "Sonraki tur";
@@ -405,13 +749,38 @@ function startGame(mode = currentMode || "listening") {
 
 function showMenu() {
   if (synth) synth.cancel();
+  document.body.classList.remove("is-game-view", "is-shop-view");
+  document.body.classList.add("is-menu-view");
   resetListenButton();
   currentMode = null;
+  updateCharacterState();
   modeMenu.hidden = false;
   playArea.hidden = true;
+  shopPanel.hidden = true;
+  backButton.hidden = true;
   modeEyebrow.textContent = "Mini dil oyunları";
   roundLabel.textContent = "Mod seç";
   scoreLabel.textContent = "0 puan";
+  updateLeafLabels();
+  applyEquippedItems();
+  startHedgehogAnimation("menu");
+}
+
+function showShop() {
+  if (synth) synth.cancel();
+  document.body.classList.remove("is-menu-view", "is-game-view");
+  document.body.classList.add("is-shop-view");
+  resetListenButton();
+  currentMode = null;
+  modeMenu.hidden = true;
+  playArea.hidden = true;
+  shopPanel.hidden = false;
+  backButton.hidden = false;
+  modeEyebrow.textContent = "Kirpi gardırobu";
+  roundLabel.textContent = "Mağaza";
+  scoreLabel.textContent = "Süsleme";
+  renderShop();
+  startHedgehogAnimation("shop");
 }
 
 function startRound() {
@@ -427,8 +796,16 @@ function startRound() {
   voiceNotice.textContent = "";
   challengeLabel.textContent = current.challenge;
   nextButton.textContent = currentRound === totalRounds - 1 ? "Sonucu gör" : "Sonraki tur";
+  updateCharacterState();
   configureModeStage();
   renderChoices();
+}
+
+function updateCharacterState() {
+  stageCharacter.className = `stage-character character-${currentMode || "menu"}`;
+  stageCharacter.classList.toggle("is-speaking", isSpeaking);
+  applyEquippedItems();
+  startHedgehogAnimation(isSpeaking ? "speaking" : currentMode || "menu");
 }
 
 function configureModeStage() {
@@ -517,23 +894,27 @@ function speakCurrentPhrase() {
     voiceNotice.textContent = `${current.name} sesi bulunamadı; tarayıcı en yakın sesi kullanacak.`;
   }
 
-  utterance.onstart = () => {
+  const markSpeaking = () => {
     isSpeaking = true;
+    updateCharacterState();
     listenButton.disabled = true;
     listenButton.querySelector(".button-icon").textContent = "■";
   };
 
+  utterance.onstart = markSpeaking;
   utterance.onend = resetListenButton;
   utterance.onerror = () => {
     voiceNotice.textContent = "Ses oynatılamadı. Tarayıcı ses ayarlarını kontrol et.";
     resetListenButton();
   };
 
+  markSpeaking();
   synth.speak(utterance);
 }
 
 function resetListenButton() {
   isSpeaking = false;
+  updateCharacterState();
   listenButton.disabled = !synth && currentMode === "listening";
   listenButton.querySelector(".button-icon").textContent = "▶";
 }
@@ -581,11 +962,23 @@ function showFinal() {
   finalPanel.hidden = false;
   roundLabel.textContent = "Tamamlandı";
   finalTitle.textContent = `${score}/${totalRounds * 10} puan`;
+  lastReward = calculateLeafReward();
+  playerState.leaves += lastReward;
+  savePlayerState();
+  updateLeafLabels();
+  rewardText.textContent = `+${lastReward} yaprak kazandın. Kirpini süslemeyi unutma.`;
 
   const copy = modes[currentMode];
   if (score >= 75) finalText.textContent = copy.finalHigh;
   else if (score >= 45) finalText.textContent = copy.finalMid;
   else finalText.textContent = copy.finalLow;
+}
+
+function calculateLeafReward() {
+  const correctishReward = Math.floor(score / 10) * 2;
+  const highScoreBonus = score >= 80 ? 5 : 0;
+  const perfectBonus = score >= totalRounds * 10 ? 10 : 0;
+  return correctishReward + highScoreBonus + perfectBonus;
 }
 
 function drawWave(time = 0) {
@@ -618,15 +1011,18 @@ function drawWave(time = 0) {
   requestAnimationFrame(drawWave);
 }
 
-document.querySelectorAll(".mode-card").forEach((button) => {
+document.querySelectorAll(".mode-card[data-mode]").forEach((button) => {
   button.addEventListener("click", () => startGame(button.dataset.mode));
 });
 
+dressButton.addEventListener("click", showShop);
 listenButton.addEventListener("click", speakCurrentPhrase);
 hintButton.addEventListener("click", revealHint);
 nextButton.addEventListener("click", goNext);
 restartButton.addEventListener("click", () => startGame(currentMode));
 menuButton.addEventListener("click", showMenu);
+backButton.addEventListener("click", showMenu);
+shopBackButton.addEventListener("click", showMenu);
 
 loadVoices();
 if (synth) {
@@ -640,5 +1036,7 @@ if (synth) {
   };
 }
 
+updateLeafLabels();
+applyEquippedItems();
 showMenu();
 drawWave();

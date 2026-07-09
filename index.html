@@ -4,23 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dil Dedektifi</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=trivia-1" />
   </head>
   <body>
     <main class="app">
       <section class="game-panel" aria-labelledby="game-title">
+        <button id="backButton" class="back-button" type="button" aria-label="Ana menüye dön" hidden>
+          ←
+        </button>
         <div class="topbar">
           <div>
             <p id="modeEyebrow" class="eyebrow">Mini dil oyunları</p>
-            <h1 id="game-title">Dil Dedektifi</h1>
-          </div>
-          <div class="mascot" aria-hidden="true">
-            <span class="mascot-flower">✿</span>
-            <span class="hedgehog">🦔</span>
+            <div class="brand-lockup">
+              <div class="hedgehog-logo" aria-hidden="true">
+                <img src="assets/hedgehog-frames/hedgehog-1.png?v=no-sparkle-1" alt="" />
+                <span class="logo-spikes"></span>
+                <span class="logo-face">
+                  <span class="logo-eye"></span>
+                  <span class="logo-nose"></span>
+                  <span class="logo-smile"></span>
+                </span>
+                <span class="logo-flower">✿</span>
+              </div>
+              <h1 id="game-title">Dil Dedektifi</h1>
+            </div>
           </div>
           <div class="scoreboard" aria-label="Skor">
             <span id="roundLabel">Mod seç</span>
             <strong id="scoreLabel">0 puan</strong>
+            <small id="leafLabel">0 yaprak</small>
           </div>
         </div>
 
@@ -47,17 +59,104 @@
             <strong>Trivia Turu</strong>
             <span>Az ipucuyla bil, ekstra ipucu alırsan puan düşer.</span>
           </button>
+          <button class="mode-card dress-card" type="button" id="dressButton">
+            <span class="mode-icon" aria-hidden="true">✿</span>
+            <strong>Kirpimi Süsle</strong>
+            <span>Yaprak kazan, aksesuar al, kirpini tatlılaştır.</span>
+          </button>
+        </section>
+
+        <section id="shopPanel" class="shop-panel" hidden>
+          <div class="shop-preview">
+            <p class="eyebrow">Kirpi gardırobu</p>
+            <div class="shop-character-wrap">
+              <div id="shopCharacter" class="character-hedgehog shop-character" aria-hidden="true">
+                <img class="hedgehog-img" src="assets/hedgehog-frames/hedgehog-1.png?v=no-sparkle-1" alt="" />
+                <span class="character-spikes"></span>
+                <span class="character-belly"></span>
+                <span class="character-face">
+                  <span class="character-ear ear-left"></span>
+                  <span class="character-ear ear-right"></span>
+                  <span class="character-eye eye-left"></span>
+                  <span class="character-eye eye-right"></span>
+                  <span class="character-nose"></span>
+                  <span class="character-mouth"></span>
+                </span>
+                <span class="character-arm arm-left"></span>
+                <span class="character-arm arm-right"></span>
+                <span class="character-foot foot-left"></span>
+                <span class="character-foot foot-right"></span>
+                <span class="accessory accessory-flower-a"></span>
+                <span class="accessory accessory-flower-b"></span>
+                <span class="accessory accessory-detective-hat"></span>
+                <span class="accessory accessory-glasses-a"></span>
+                <span class="accessory accessory-glasses-b"></span>
+                <span class="accessory accessory-scarf-a"></span>
+                <span class="accessory accessory-scarf-b"></span>
+                <span class="accessory accessory-headphones-a"></span>
+                <span class="accessory accessory-headphones-b"></span>
+                <span class="accessory accessory-magnifier"></span>
+                <span class="accessory accessory-pencil"></span>
+              </div>
+            </div>
+            <p id="shopLeafLabel" class="shop-leaves">0 yaprak</p>
+          </div>
+          <div>
+            <div class="shop-header">
+              <h2>Kirpimi Süsle</h2>
+              <button id="shopBackButton" class="secondary-button" type="button">Modlara dön</button>
+            </div>
+            <div id="shopItems" class="shop-items"></div>
+          </div>
         </section>
 
         <section id="playArea" hidden>
           <div class="stage">
             <canvas id="waveCanvas" width="900" height="260" aria-hidden="true"></canvas>
             <div class="sticker sticker-left" aria-hidden="true">✿</div>
-            <div class="sticker sticker-right" aria-hidden="true">🦔</div>
             <div class="mini-garden" aria-hidden="true">
               <span>❀</span>
               <span>✿</span>
               <span>✽</span>
+            </div>
+            <div id="stageCharacter" class="stage-character" aria-hidden="true">
+              <div class="speech-bubble">
+                <span class="bubble-listening">Dinle bakalım</span>
+                <span class="bubble-orthography">Harf izi!</span>
+                <span class="bubble-trivia">İpucu vakti</span>
+              </div>
+              <div class="character-hedgehog">
+                <img class="hedgehog-img" src="assets/hedgehog-frames/hedgehog-1.png?v=no-sparkle-1" alt="" />
+                <span class="character-spikes"></span>
+                <span class="character-belly"></span>
+                <span class="character-face">
+                  <span class="character-ear ear-left"></span>
+                  <span class="character-ear ear-right"></span>
+                  <span class="character-glasses"></span>
+                  <span class="character-eye eye-left"></span>
+                  <span class="character-eye eye-right"></span>
+                  <span class="character-nose"></span>
+                  <span class="character-mouth"></span>
+                </span>
+                <span class="character-arm arm-left"></span>
+                <span class="character-arm arm-right"></span>
+                <span class="character-foot foot-left"></span>
+                <span class="character-foot foot-right"></span>
+                <span class="character-pencil"></span>
+                <span class="character-flower">✿</span>
+                <span class="thought-mark">?</span>
+                <span class="accessory accessory-flower-a"></span>
+                <span class="accessory accessory-flower-b"></span>
+                <span class="accessory accessory-detective-hat"></span>
+                <span class="accessory accessory-glasses-a"></span>
+                <span class="accessory accessory-glasses-b"></span>
+                <span class="accessory accessory-scarf-a"></span>
+                <span class="accessory accessory-scarf-b"></span>
+                <span class="accessory accessory-headphones-a"></span>
+                <span class="accessory accessory-headphones-b"></span>
+                <span class="accessory accessory-magnifier"></span>
+                <span class="accessory accessory-pencil"></span>
+              </div>
             </div>
             <div class="audio-card">
               <span id="challengeLabel" class="challenge-label">Zor seviye</span>
@@ -92,6 +191,7 @@
             <p class="eyebrow">Oyun bitti</p>
             <h2 id="finalTitle"></h2>
             <p id="finalText"></p>
+            <p id="rewardText" class="reward-text"></p>
             <div class="final-actions">
               <button id="restartButton" class="primary-button" type="button">Aynı modu yeniden oyna</button>
               <button id="menuButton" class="secondary-button" type="button">Modlara dön</button>
@@ -101,6 +201,6 @@
       </section>
     </main>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=trivia-1"></script>
   </body>
 </html>
